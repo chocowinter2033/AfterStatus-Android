@@ -5,7 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "com.afterstatus.app"
+}
+compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+kotlinOptions {
+    jvmTarget = "17"
+}  
+namespace = "com.afterstatus.app"
     compileSdk = 35
 
     defaultConfig {
@@ -31,11 +39,3 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("androidx.navigation:navigation-compose:2.8.5")
     debugImplementation("androidx.compose.ui:ui-tooling")
-}
-compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-kotlinOptions {
-    jvmTarget = "17"
-}
