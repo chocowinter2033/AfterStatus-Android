@@ -1,0 +1,58 @@
+
+name: Build AfterStatus APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract Android project
+        run: |
+          test -f AfterStatus-Android-Cloud-Build.zip
+          mkdir -p extracted
+          unzip -oq AfterStatus-Android-Cloud-Build.zip -d extracted
+
+      - name: Locate Android project
+        id: project
+        run: |
+          SETTINGS=$(find extracted -type f \
+            \( -name settings.gradle.kts -o -name settings.gradle \) \
+            -print -quit)
+          test -n "$SETTINGS"
+          echo "dir=$(dirname "$SETTINGS")" >> "$GITHUB_OUTPUT"
+
+      - name: Build debug APK
+        run: |
+          gradle --no-daemon \
+            -p "${{ steps.project.outputs.dir }}" \
+            :app:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AfterStatus-debug-APK
+          path: extracted/**/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
